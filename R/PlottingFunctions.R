@@ -779,6 +779,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   df_long <- reshape2::melt(all_map_df[,-2],id.vars = "sample",
                             variable.name = "map_type",value.name = "reads")
   df_long$map_type <- factor(df_long$map_type, levels = c("multi_mapped", "uniq_mapped", "un_mapped"))
+  df_long$sample <- factor(df_long$sample, levels = unique(df_long$sample))
   # plot
   barplot <-
     ggplot(df_long) +
@@ -789,7 +790,8 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
     scale_x_continuous(labels = scales::label_percent()) +
     theme_bw() + xlab("reads percent") +
     jj_theme() + ylab("") +
-    scale_y_discrete(limits = rev(levels(df_long$map_type)))
+    scale_x_discrete(limits = rev(levels(df_long$map_type))) +
+    scale_y_discrete(limits = rev(levels(df_long$sample)))
 
   # return
   if(plot_type == "barplot"){
