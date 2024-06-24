@@ -285,7 +285,7 @@ bowtie2_align <- function(index = NULL,fq_file1 = NULL,fq_file2 = NULL,
   bowtie_path = "/software/bowtie2-2.5.3/bowtie2"
 
  # 构建临时参数
-  tmp_params = c(paste("-x", index, "--threads", threads, "-S", output_file, bowtie2_params)
+  tmp_params = c(paste("-x", index, "--threads", threads, "-S", output_file, bowtie2_params))
 
   # 处理 FASTQ 文件
   if (is.null(fq_file2)) {
