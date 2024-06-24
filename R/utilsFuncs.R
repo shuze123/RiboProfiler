@@ -535,10 +535,10 @@ batch_bam2bigwig <- function(bam_file = NULL,
 #' @examples
 #' \dontrun{
 #' # Convert a single SAM file to BAM format
-#' batch_sam2bam("my_sam_file.sam", "my_bam_file")
+#' batch_sam2bam("my_sam_file.sam", "my_bam_file", threads = 1)
 #'
 #' # Convert multiple SAM files to BAM format
-#' batch_sam2bam(c("sam_file1.sam", "sam_file2.sam"), c("bam_file1", "bam_file2"))
+#' batch_sam2bam(c("sam_file1.sam", "sam_file2.sam"), c("bam_file1", "bam_file2"), threads = 1)
 #' }
 #'
 #' @export
