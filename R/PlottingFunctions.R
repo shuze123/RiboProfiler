@@ -787,10 +787,9 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
       list(mapping = aes(x = reads,y = sample,fill = map_type),
            position = position_fill()),geom_col_params)) +
     scale_fill_brewer(palette = "Paired") +
-    scale_x_continuous(labels = scales::label_percent()) +
+    scale_x_reverse(labels = scales::label_percent()) +
     theme_bw() + xlab("reads percent") +
     jj_theme() + ylab("") +
-    scale_x_discrete(limits = rev(levels(df_long$map_type))) +
     scale_y_discrete(limits = rev(levels(df_long$sample)))
 
   # return
