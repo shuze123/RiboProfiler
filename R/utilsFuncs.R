@@ -127,14 +127,15 @@ trRNA_index_build <- function(trRNA_file = NULL,prefix = NULL,
   # bowtie_path = "python ./bowtie2-2.5.1-mingw-x86_64/bowtie2-build"
    bowtie_path = "bowtie2-build"
   # build index
-  # system2(bowtie_path,c(paste("--threads ",threads,sep = ""),
-  #                       "--quiet",trRNA_file,
-  #                       paste("0.index-data/rtRNA-index/",prefix,sep = "")))
+  system2(bowtie_path,c(paste("--threads ",threads,sep = ""),
+                        "--quiet",trRNA_file,
+                        paste("0.index-data/rtRNA-index/",prefix,sep = "")))
 
-  system2(bowtie_path,
-               paste("--threads ",threads,sep = ""),
-               "--quiet",trRNA_file,
-               paste("0.index-data/rtRNA-index/",prefix,sep = ""))
+  # system(paste(bowtie_path,
+               # paste("--threads ",threads,sep = ""),
+               # "--quiet",trRNA_file,
+               # paste("0.index-data/rtRNA-index/",prefix,sep = ""),
+               # sep = " "))
 
   cli::cat_boxx("Building index for tRNA and rRNA has finished!",
                 col = "red")
