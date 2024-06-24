@@ -788,7 +788,8 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
     scale_fill_brewer(palette = "Paired") +
     scale_x_continuous(labels = scales::label_percent()) +
     theme_bw() + xlab("reads percent") +
-    jj_theme() + ylab("")
+    jj_theme() + ylab("") +
+    scale_y_discrete(limits = rev(levels(df_long$sample)))
 
   # return
   if(plot_type == "barplot"){
