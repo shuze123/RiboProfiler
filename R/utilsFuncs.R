@@ -556,15 +556,15 @@ batch_bam2bigwig <- function(bam_file = NULL,
 
 batch_sam2bam <- function(sam_file = NULL, bam_file = NULL, threads = 1) {
   lapply(seq_along(sam_file), function(x) {
-    # 构建 BAM 文件路径
-    bam_file_path <- paste0(bam_file[x], ".bam")
+    # 构建排序后的 BAM 文件路径
     sorted_bam_file_path <- paste0(bam_file[x], ".sorted.bam")
 
-    # 运行 samtools view 命令
-    system2("/usr/local/bin/samtoolssamtools", args = c("view", paste0("-@ ", threads), "-Sb", sam_file[x], "-o", bam_file_path))
+    # 构建 samtools 命令
+    cmd <- sprintf("samtools view -@ %d -bS %s | samtools sort -@ %d -o %s", 
+                   threads, sam_file[x], threads, sorted_bam_file_path)
 
-    # 运行 samtools sort 命令
-    system2("/usr/local/bin/samtoolssamtools", args = c("sort", paste0("-@ ", threads), bam_file_path, "-o", sorted_bam_file_path))
+    # 运行 samtools 命令
+    system(cmd)
 
     # 打印处理完成信息
     cli::cat_bullet(paste(sam_file[x], "has been processed!", sep = " "),
