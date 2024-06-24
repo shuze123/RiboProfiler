@@ -809,7 +809,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   if(plot_type == "barplot"){
     barplot
   }else{
-    tab <- gridExtra::tableGrob(all_map_df)
+    tab <- gridExtra::tableGrob(all_map_df, rows = NULL)
     grid::grid.newpage()
     grid::grid.draw(tab)
   }

@@ -112,8 +112,8 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
   mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
   seq_type <- match.arg(seq_type,c("pairedEnd","singleEnd"))
 
-  if(!dir.exists("1.QC-data")){
-    dir.create("1.QC-data")
+  if(!dir.exists("5_riboseq_qc")){
+    dir.create("5_riboseq_qc")
   }
 
   JuliaCall::julia_setup(installJulia = TRUE)
@@ -131,7 +131,7 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
     prepareQCdata <- JuliaCall::julia_eval("prepareQCdata")
 
     # excute function
-    outFile_tmp = paste("1.QC-data/",out_file,sep = "")
+    outFile_tmp = paste("5_riboseq_qc/",out_file,sep = "")
     prepareQCdata(longestTransInfo = longest_trans_file,
                   samFile = paste0(sam_file,collapse = ","),
                   outFile = paste0(outFile_tmp,collapse = ","),
@@ -141,7 +141,7 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
 
     lapply(1:length(sam_file), function(x){
       # excute function
-      outFile_tmp = paste("1.QC-data/",out_file[x],sep = "")
+      outFile_tmp = paste("5_riboseq_qc",out_file[x],sep = "")
       prepareQCdata(samFile = sam_file[x],
                     outFile = outFile_tmp,
                     seqType = seq_type)
