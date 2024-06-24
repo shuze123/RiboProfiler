@@ -283,45 +283,56 @@ bowtie2_align <- function(index = NULL,fq_file1 = NULL,fq_file2 = NULL,
 
   # bowtie_path = "./bowtie2-2.5.1-mingw-x86_64/bowtie2"
   bowtie_path = "/software/bowtie2-2.5.3/bowtie2"
-  # ============================================================================
-  tmp_params = c(paste("-x ",index,sep = ""),
-                 paste("--threads ",threads,sep = ""),
-                 paste("-S ",output_file,sep = ""),
+
+ # 构建临时参数
+  tmp_params = c(paste("-x ", index, sep = ""),
+                 paste("--threads ", threads, sep = ""),
+                 paste("-S ", output_file, sep = ""),
                  bowtie2_params)
 
-  # decompress fsatq file
-  if(is.null(fq_file2)){
-    tmp_file = sapply(strsplit(fq_file1,split = ".gz|.gzip"),"[",1)
-
-    if(!file.exists(tmp_file)){
-      R.utils::gunzip(fq_file1,remove = FALSE)
+  # 处理 FASTQ 文件
+  if (is.null(fq_file2)) {
+    # 单端测序
+    if (grepl("\\.gz$|\\.gzip$", fq_file1)) {
+      tmp_file = sapply(strsplit(fq_file1, split = "\\.gz|\\.gzip"), "[", 1)
+      if (!file.exists(tmp_file)) {
+        R.utils::gunzip(fq_file1, remove = FALSE)
+      }
+    } else {
+      tmp_file = fq_file1
+    }
+    final_params = c(paste("-U ", tmp_file, sep = ""), tmp_params)
+  } else {
+    # 双端测序
+    if (grepl("\\.gz$|\\.gzip$", fq_file1)) {
+      tmp_file1 = sapply(strsplit(fq_file1, split = "\\.gz|\\.gzip"), "[", 1)
+      if (!file.exists(tmp_file1)) {
+        R.utils::gunzip(fq_file1, remove = FALSE)
+      }
+    } else {
+      tmp_file1 = fq_file1
     }
 
-    final_params = c(paste("-U ",tmp_file,sep = ""),tmp_params)
-  }else{
-    tmp_file1 = sapply(strsplit(fq_file1,split = ".gz|.gzip"),"[",1)
-    tmp_file2 = sapply(strsplit(fq_file2,split = ".gz|.gzip"),"[",1)
-
-    if(!file.exists(tmp_file1)){
-      R.utils::gunzip(fq_file1,remove = FALSE)
+    if (grepl("\\.gz$|\\.gzip$", fq_file2)) {
+      tmp_file2 = sapply(strsplit(fq_file2, split = "\\.gz|\\.gzip"), "[", 1)
+      if (!file.exists(tmp_file2)) {
+        R.utils::gunzip(fq_file2, remove = FALSE)
+      }
+    } else {
+      tmp_file2 = fq_file2
     }
 
-    if(!file.exists(tmp_file2)){
-      R.utils::gunzip(fq_file2,remove = FALSE)
-    }
-
-    final_params = c(paste("-1 ",tmp_file1,sep = ""),
-                     paste("-2 ",tmp_file2,sep = ""),
+    final_params = c(paste("-1 ", tmp_file1, sep = ""),
+                     paste("-2 ", tmp_file2, sep = ""),
                      tmp_params)
   }
 
-  # mapping
-  map <- system2(bowtie_path,final_params,
-                 stdout = TRUE)
+  # 运行比对
+  map <- system2(bowtie_path, final_params, stdout = TRUE)
 
-  # output map info
-  map_info <- paste0(map,collapse = "\n")
-  write(map_info,file = paste(output_file,"_mapinfo.txt",sep = ""))
+  # 输出比对信息
+  map_info <- paste0(map, collapse = "\n")
+  write(map_info, file = paste(output_file, "_mapinfo.txt", sep = ""))
 
   # remove fastq
   # if(is.null(fq_file2)){
