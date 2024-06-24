@@ -125,7 +125,7 @@ trRNA_index_build <- function(trRNA_file = NULL,prefix = NULL,
   # }
 
   # bowtie_path = "python ./bowtie2-2.5.1-mingw-x86_64/bowtie2-build"
-   bowtie_path = "bowtie2-build"
+   bowtie_path = "/software/bowtie2-2.5.3/bowtie2-build"
   # build index
   system2(bowtie_path,c(paste("--threads ",threads,sep = ""),
                         "--quiet",trRNA_file,
@@ -282,7 +282,7 @@ bowtie2_align <- function(index = NULL,fq_file1 = NULL,fq_file2 = NULL,
   # }
 
   # bowtie_path = "./bowtie2-2.5.1-mingw-x86_64/bowtie2"
-  bowtie_path = "bowtie2-build"
+  bowtie_path = "/software/bowtie2-2.5.3/bowtie2-build"
   # ============================================================================
   tmp_params = c(paste("-x ",index,sep = ""),
                  paste("--threads ",threads,sep = ""),
