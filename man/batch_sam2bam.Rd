@@ -4,7 +4,7 @@
 \alias{batch_sam2bam}
 \title{Convert SAM files to BAM format}
 \usage{
-batch_sam2bam(sam_file = NULL, bam_file = NULL)
+batch_sam2bam(sam_file = NULL, bam_file = NULL, threads = 1)
 }
 \arguments{
 \item{sam_file}{Character vector containing the path(s) to the input SAM file(s).}
@@ -22,10 +22,10 @@ Rsamtools::asBam function.
 \examples{
 \dontrun{
 # Convert a single SAM file to BAM format
-batch_sam2bam("my_sam_file.sam", "my_bam_file")
+batch_sam2bam("my_sam_file.sam", "my_bam_file", threads = )
 
 # Convert multiple SAM files to BAM format
-batch_sam2bam(c("sam_file1.sam", "sam_file2.sam"), c("bam_file1", "bam_file2"))
+batch_sam2bam(c("sam_file1.sam", "sam_file2.sam"), c("bam_file1", "bam_file2"), threads = )
 }
 
 }
