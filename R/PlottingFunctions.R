@@ -786,7 +786,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   do.call(geom_col,modifyList(
     list(mapping = aes(x = reads,y = sample,fill = map_type),
          position = position_fill()),geom_col_params)) +
-  labs(x = "reads percent", y = NULL, title = "Title") +
+  labs(x = "reads percent", y = NULL, title = Title) +
   scale_fill_brewer(palette = "Paired") +
   scale_x_reverse(labels = scales::label_percent()) +
   scale_y_discrete(limits = rev(levels(df_long$sample))) +
