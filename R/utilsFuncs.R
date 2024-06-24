@@ -324,12 +324,12 @@ bowtie2_align <- function(index = NULL,fq_file1 = NULL,fq_file2 = NULL,
   write(map_info,file = paste(output_file,"_mapinfo.txt",sep = ""))
 
   # remove fastq
-  if(is.null(fq_file2)){
-    file.remove(tmp_file)
-  }else{
-    file.remove(tmp_file1)
-    file.remove(tmp_file2)
-  }
+  # if(is.null(fq_file2)){
+    # file.remove(tmp_file)
+  # }else{
+    # file.remove(tmp_file1)
+    # file.remove(tmp_file2)
+  # }
 
   # print
   cli::cat_bullet(paste(output_file,"has been processed!",sep = " "),
