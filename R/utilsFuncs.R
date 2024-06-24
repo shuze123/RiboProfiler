@@ -323,11 +323,7 @@ bowtie2_align <- function(index = NULL,fq_file1 = NULL,fq_file2 = NULL,
   }
 
   # 运行比对
-  map <- system2(bowtie_path, final_params, stdout = TRUE)
-
-  # 输出比对信息
-  map_info <- paste0(map, collapse = "\n")
-  write(map_info, paste0(sub("\\.sam$", "", output_file), "_mapinfo.txt"))
+  system2(bowtie_path, final_params, stdout = paste0(sub("\\.sam$", "", output_file), "_mapinfo.txt"))
 
   # remove fastq
   # if(is.null(fq_file2)){
