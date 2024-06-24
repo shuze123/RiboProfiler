@@ -131,11 +131,10 @@ trRNA_index_build <- function(trRNA_file = NULL,prefix = NULL,
   #                       "--quiet",trRNA_file,
   #                       paste("0.index-data/rtRNA-index/",prefix,sep = "")))
 
-  system(paste(bowtie_path,
+  system2(bowtie_path,
                paste("--threads ",threads,sep = ""),
                "--quiet",trRNA_file,
-               paste("0.index-data/rtRNA-index/",prefix,sep = ""),
-               sep = " "))
+               paste("0.index-data/rtRNA-index/",prefix,sep = ""))
 
   cli::cat_boxx("Building index for tRNA and rRNA has finished!",
                 col = "red")
