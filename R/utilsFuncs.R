@@ -111,21 +111,21 @@ trRNA_index_build <- function(trRNA_file = NULL,prefix = NULL,
   #                         "--threads",threads,"--quiet",overwrite = TRUE)
 
   # download bowtie2 for windows
-  bowtie2 = "https://github.com/BenLangmead/bowtie2/releases/download/v2.5.1/bowtie2-2.5.1-mingw-x86_64.zip"
+  # bowtie2 = "https://github.com/BenLangmead/bowtie2/releases/download/v2.5.1/bowtie2-2.5.1-mingw-x86_64.zip"
 
-  if(!dir.exists("bowtie2-2.5.1-mingw-x86_64")){
-    if(suppressWarnings(download.file(url = bowtie2,destfile = "./"))){
-      cli::cli_alert_warning(paste("Please download bowtie2 mannually with links:",
-                                   bowtie2,
-                                   " and unzip file in current directory.",
-                                   sep = " "))
-    }else{
-      unzip("./bowtie2-2.5.1-mingw-x86_64.zip")
-    }
-  }
+  # if(!dir.exists("bowtie2-2.5.1-mingw-x86_64")){
+    # if(suppressWarnings(download.file(url = bowtie2,destfile = "./"))){
+      # cli::cli_alert_warning(paste("Please download bowtie2 mannually with links:",
+                                   # bowtie2,
+                                   # " and unzip file in current directory.",
+                                   # sep = " "))
+    # }else{
+      # unzip("./bowtie2-2.5.1-mingw-x86_64.zip")
+    # }
+  # }
 
-  bowtie_path = "python ./bowtie2-2.5.1-mingw-x86_64/bowtie2-build"
-
+  # bowtie_path = "python ./bowtie2-2.5.1-mingw-x86_64/bowtie2-build"
+   bowtie_path = "bowtie2-build"
   # build index
   # system2(bowtie_path,c(paste("--threads ",threads,sep = ""),
   #                       "--quiet",trRNA_file,
@@ -268,21 +268,21 @@ bowtie2_align <- function(index = NULL,fq_file1 = NULL,fq_file2 = NULL,
                           output_file = NULL,threads = 1,bowtie2_params = NULL){
   # ============================================================================
   # download bowtie2
-  bowtie2 = "https://github.com/BenLangmead/bowtie2/releases/download/v2.5.1/bowtie2-2.5.1-mingw-x86_64.zip"
+  # bowtie2 = "https://github.com/BenLangmead/bowtie2/releases/download/v2.5.1/bowtie2-2.5.1-mingw-x86_64.zip"
 
-  if(!dir.exists("bowtie2-2.5.1-mingw-x86_64")){
-    if(suppressWarnings(download.file(url = bowtie2,destfile = "./"))){
-      cli::cli_alert_warning(paste("Please download bowtie2 mannually with links:",
-                                   bowtie2,
-                                   " and unzip file in current directory.",
-                                   sep = " "))
-    }else{
-      unzip("./bowtie2-2.5.1-mingw-x86_64.zip")
-    }
-  }
+  # if(!dir.exists("bowtie2-2.5.1-mingw-x86_64")){
+    # if(suppressWarnings(download.file(url = bowtie2,destfile = "./"))){
+      # cli::cli_alert_warning(paste("Please download bowtie2 mannually with links:",
+                                   # bowtie2,
+                                   # " and unzip file in current directory.",
+                                   # sep = " "))
+    # }else{
+      # unzip("./bowtie2-2.5.1-mingw-x86_64.zip")
+    # }
+  # }
 
-  bowtie_path = "./bowtie2-2.5.1-mingw-x86_64/bowtie2"
-
+  # bowtie_path = "./bowtie2-2.5.1-mingw-x86_64/bowtie2"
+  bowtie_path = "bowtie2-build"
   # ============================================================================
   tmp_params = c(paste("-x ",index,sep = ""),
                  paste("--threads ",threads,sep = ""),
