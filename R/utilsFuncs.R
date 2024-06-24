@@ -564,7 +564,7 @@ batch_sam2bam <- function(sam_file = NULL, bam_file = NULL, threads = 1) {
     system2("/usr/local/bin/samtoolssamtools", args = c("view", paste0("-@ ", threads), "-Sb", sam_file[x], "-o", bam_file_path))
 
     # 运行 samtools sort 命令
-    system2("/usr/local/bin/samtoolssamtools", args = c("sort", "-m 64G", "-n", bam_file_path, "-o", sorted_bam_file_path))
+    system2("/usr/local/bin/samtoolssamtools", args = c("sort", paste0("-@ ", threads), bam_file_path, "-o", sorted_bam_file_path))
 
     # 打印处理完成信息
     cli::cat_bullet(paste(sam_file[x], "has been processed!", sep = " "),
