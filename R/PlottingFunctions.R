@@ -778,7 +778,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   # wide to long
   df_long <- reshape2::melt(all_map_df[,-2],id.vars = "sample",
                             variable.name = "map_type",value.name = "reads")
-  df_long$map_type <- factor(df_long$map_type, levels = c("un_mapped", "uniq_mapped", "multi_mapped"))
+  df_long$map_type <- factor(df_long$map_type, levels = c("multi_mapped", "uniq_mapped", "un_mapped"))
   # plot
   barplot <-
     ggplot(df_long) +
