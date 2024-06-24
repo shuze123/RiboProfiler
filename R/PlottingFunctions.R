@@ -742,7 +742,7 @@ track_plot <- function(signal_data = NULL,
 #'
 #' @export
 plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
-                         plot_type = c("barplot","table"),geom_col_params = list()){
+                         plot_type = c("barplot","table"),geom_col_params = list(), Title = ""){
   plot_type <- match.arg(plot_type,c("barplot","table"))
 
   # define extract func
@@ -781,16 +781,29 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   df_long$map_type <- factor(df_long$map_type, levels = c("multi_mapped", "uniq_mapped", "un_mapped"))
   df_long$sample <- factor(df_long$sample, levels = unique(df_long$sample))
   # plot
-  barplot <-
+  p1 <-
     ggplot(df_long) +
-    do.call(geom_col,modifyList(
-      list(mapping = aes(x = reads,y = sample,fill = map_type),
-           position = position_fill()),geom_col_params)) +
-    scale_fill_brewer(palette = "Paired") +
-    scale_x_reverse(labels = scales::label_percent()) +
-    theme_bw() + xlab("reads percent") +
-    jj_theme() + ylab("") +
-    scale_y_discrete(limits = rev(levels(df_long$sample)))
+  do.call(geom_col,modifyList(
+    list(mapping = aes(x = reads,y = sample,fill = map_type),
+         position = position_fill()),geom_col_params)) +
+  labs(x = "reads percent", y = NULL, title = "Title") +
+  scale_fill_brewer(palette = "Paired") +
+  scale_x_reverse(labels = scales::label_percent()) +
+  scale_y_discrete(limits = rev(levels(df_long$sample))) +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 10, family = "ArialMT", colour = "black"),
+        axis.text = element_text(size = 8, family = "ArialMT", colour = "black"),
+        axis.text.x = element_text(size = 8, family = "ArialMT", colour = "black"),
+        axis.text.y = element_text(size = 8, family = "ArialMT", colour = "black"),
+        legend.text = element_text(size = 8, family = "ArialMT", colour = "black"),
+        legend.key.size = unit(12, "pt"),
+        legend.title = element_text(size = 10, colour = "black"),
+        plot.title = element_text(size = 10, hjust = 0.5, family = "ArialMT", colour = "black"),
+        line = element_line(linewidth = 1/2.134),
+        panel.background = element_blank(), plot.background = element_blank(),
+        legend.background = element_blank(), legend.box.background = element_blank(),
+        panel.grid = element_blank())
+  barplot <- cowplot::plot_grid(egg::set_panel_size(p1, width = unit(4.5, "cm"), height = unit(1.2*length(unique(df_long$sample)), "cm")))
 
   # return
   if(plot_type == "barplot"){
