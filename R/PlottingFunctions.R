@@ -788,7 +788,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
          position = position_fill()),geom_col_params)) +
   labs(x = "reads percent", y = NULL, title = Title) +
   scale_fill_brewer(palette = "Paired") +
-  scale_x_reverse(labels = scales::label_percent()) +
+  scale_x_continuous(labels = scales::label_percent()) +
   scale_y_discrete(limits = rev(levels(df_long$sample))) +
   theme_bw() + 
   theme(axis.title = element_text(size = 10, family = "ArialMT", colour = "black"),

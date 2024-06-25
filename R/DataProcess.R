@@ -112,8 +112,8 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
   mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
   seq_type <- match.arg(seq_type,c("pairedEnd","singleEnd"))
 
-  if(!dir.exists("5_riboseq_qc")){
-    dir.create("5_riboseq_qc")
+  if(!dir.exists("5_riboseq_output/1_QC_data")){
+    dir.create("5_riboseq_output/1_QC_data")
   }
 
   JuliaCall::julia_setup(installJulia = TRUE)
@@ -131,7 +131,7 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
     prepareQCdata <- JuliaCall::julia_eval("prepareQCdata")
 
     # excute function
-    outFile_tmp = paste("5_riboseq_qc/",out_file,sep = "")
+    outFile_tmp = paste("5_riboseq_output/1_QC_data/",out_file,sep = "")
     prepareQCdata(longestTransInfo = longest_trans_file,
                   samFile = paste0(sam_file,collapse = ","),
                   outFile = paste0(outFile_tmp,collapse = ","),
@@ -141,7 +141,7 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
 
     lapply(1:length(sam_file), function(x){
       # excute function
-      outFile_tmp = paste("5_riboseq_qc",out_file[x],sep = "")
+      outFile_tmp = paste("5_riboseq_output/1_QC_data",out_file[x],sep = "")
       prepareQCdata(samFile = sam_file[x],
                     outFile = outFile_tmp,
                     seqType = seq_type)
@@ -165,7 +165,7 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
 #' @param max The maximum length of reads to be considered for calculating density
 #' (default is 35).
 #'
-#' @return No explicit return value. Output files are written to "2.density-data" directory.
+#' @return No explicit return value. Output files are written to "5_riboseq_output/2_density_data" directory.
 #'
 #' @importFrom JuliaCall julia_setup julia_library julia_eval
 #'
@@ -186,8 +186,8 @@ pre_ribo_density_data <- function(mapping_type = c("genome","transcriptome"),
                                   min = 23,max = 35){
   mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
 
-  if(!dir.exists("2.density-data")){
-    dir.create("2.density-data")
+  if(!dir.exists("5_riboseq_output/2_density_data")){
+    dir.create("5_riboseq_output/2_density_data")
   }
 
   JuliaCall::julia_setup(installJulia = TRUE)
@@ -209,7 +209,7 @@ pre_ribo_density_data <- function(mapping_type = c("genome","transcriptome"),
 
   # excute function
   lapply(seq_along(sam_file), function(x){
-    outFile_tmp = paste("2.density-data/",out_file[x],sep = "")
+    outFile_tmp = paste("5_riboseq_output/2_density_data/",out_file[x],sep = "")
     calculateRibosomeDensity(inputFile = sam_file[x],
                              outputFile = outFile_tmp,
                              min = min,
@@ -228,7 +228,7 @@ pre_ribo_density_data <- function(mapping_type = c("genome","transcriptome"),
 #' @param sam_file A character vector specifying the path(s) of the input SAM file(s).
 #' @param bam_file If using sam file runs slowly, try using bam file instead.
 #' @param out_file A character vector specifying the name(s) of the output file(s).
-#' The output file(s) will be saved in the "2.density-data" directory.
+#' The output file(s) will be saved in the "5_riboseq_output/2_density_data" directory.
 #'
 #' @return NULL
 #'
@@ -246,14 +246,14 @@ pre_ribo_density_data <- function(mapping_type = c("genome","transcriptome"),
 pre_rna_coverage_data <- function(sam_file = NULL,
                                   bam_file = NULL,
                                   out_file = NULL){
-  if(!dir.exists("2.density-data")){
-    dir.create("2.density-data")
+  if(!dir.exists("5_riboseq_output/2_density_data")){
+    dir.create("5_riboseq_output/2_density_data")
   }
 
   # check input file type
   if(!is.null(bam_file)){
     lapply(seq_along(bam_file), function(x){
-      outFile_tmp = paste("2.density-data/",out_file[x],sep = "")
+      outFile_tmp = paste("5_riboseq_output/2_density_data/",out_file[x],sep = "")
 
       # bam total mapped reads
       total_mapped_reads <- sum(Rsamtools::idxstatsBam(bam_file[x])$mapped)
@@ -292,7 +292,7 @@ pre_rna_coverage_data <- function(sam_file = NULL,
 
     # excute function
     lapply(seq_along(sam_file), function(x){
-      outFile_tmp = paste("2.density-data/",out_file[x],sep = "")
+      outFile_tmp = paste("5_riboseq_output/2_density_data/",out_file[x],sep = "")
       calculateRNACoverage(inputFile = sam_file[x],
                            outputFile = outFile_tmp,
                            type = "coverage")
@@ -306,7 +306,7 @@ pre_rna_coverage_data <- function(sam_file = NULL,
 #' Calculate density data for a given gene annotation file
 #'
 #' This function calculates density data for a given gene annotation file using
-#' the XAM package in Julia. It writes the output files to the "2.density-data"
+#' the XAM package in Julia. It writes the output files to the "5_riboseq_output/2_density_data"
 #' directory.
 #'
 #' @param gene_anno A gene annotation file in the format accepted by XAM
@@ -339,8 +339,8 @@ pre_rna_coverage_data <- function(sam_file = NULL,
 pre_gene_trans_density <- function(gene_anno = NULL,
                                    density_file = NULL,
                                    out_file = NULL){
-  if(!dir.exists("2.density-data")){
-    dir.create("2.density-data")
+  if(!dir.exists("5_riboseq_output/2_density_data")){
+    dir.create("5_riboseq_output/2_density_data")
   }
 
   JuliaCall::julia_setup(installJulia = TRUE)
@@ -356,8 +356,8 @@ pre_gene_trans_density <- function(gene_anno = NULL,
 
   # excute function
   lapply(seq_along(density_file), function(x){
-    inputFile_tmp = paste("2.density-data/",density_file[x],sep = "")
-    outFile_tmp = paste("2.density-data/",out_file[x],sep = "")
+    inputFile_tmp = paste("5_riboseq_output/2_density_data/",density_file[x],sep = "")
+    outFile_tmp = paste("5_riboseq_output/2_density_data/",out_file[x],sep = "")
     getGeneSinglePosDensity(geneInfo = gene_anno,
                             inputFile = inputFile_tmp,
                             outputFile = outFile_tmp)
@@ -384,7 +384,7 @@ pre_gene_trans_density <- function(gene_anno = NULL,
 load_qc_data <- function(sample_name = NULL,
                          group_name = NULL){
   # load data
-  file <- list.files('5_riboseq_qc/','.txt')
+  file <- list.files('5_riboseq_output/1_QC_data/','.txt')
   message("QC input files: ")
   message(paste0(file,sep = "\n"))
 
@@ -401,7 +401,7 @@ load_qc_data <- function(sample_name = NULL,
   }
 
   plyr::ldply(1:length(file),function(x){
-    tmp <- data.table::fread(paste('5_riboseq_qc/',file[x],sep = ''))
+    tmp <- data.table::fread(paste('5_riboseq_output/1_QC_data/',file[x],sep = ''))
     colnames(tmp) <- c('length','framest','relst','framesp','relsp','feature','counts')
     # add sample
     tmp$sample <- sample_name[x]
@@ -450,8 +450,8 @@ load_track_data <- function(mapping_type = c("genome","transcriptome"),
   if(mapping_type == "genome"){
     plyr::ldply(1:length(ribo_file),function(x){
       # ribo denisty
-      # ribo_tmp <- data.table::fread(paste('2.density-data/',ribo_file[x],sep = ''),sep = "\t")
-      ribo_tmp <- vroom::vroom(paste('2.density-data/',ribo_file[x],sep = ''),
+      # ribo_tmp <- data.table::fread(paste('5_riboseq_output/2_density_data/',ribo_file[x],sep = ''),sep = "\t")
+      ribo_tmp <- vroom::vroom(paste('5_riboseq_output/2_density_data/',ribo_file[x],sep = ''),
                                delim = "\t",show_col_types = FALSE,
                                col_names = c('gene_name',"trans_id",'transpos','density'))
 
@@ -464,9 +464,9 @@ load_track_data <- function(mapping_type = c("genome","transcriptome"),
 
       if(!is.null(rna_file)){
         # rna coverage
-        # rna_tmp <- data.table::fread(paste('2.density-data/',rna_file[x],sep = ''),sep = "\t")
+        # rna_tmp <- data.table::fread(paste('5_riboseq_output/2_density_data/',rna_file[x],sep = ''),sep = "\t")
 
-        rna_tmp <- vroom::vroom(paste('2.density-data/',rna_file[x],sep = ''),
+        rna_tmp <- vroom::vroom(paste('5_riboseq_output/2_density_data/',rna_file[x],sep = ''),
                                 delim = "\t",show_col_types = FALSE,
                                 col_names = c('gene_name',"trans_id",'transpos','density'))
         # add colnames
@@ -487,9 +487,9 @@ load_track_data <- function(mapping_type = c("genome","transcriptome"),
   }else if(mapping_type == "transcriptome"){
     plyr::ldply(1:length(ribo_file),function(x){
       # ribo denisty
-      # ribo_tmp <- data.table::fread(paste('2.density-data/',ribo_file[x],sep = ''),
+      # ribo_tmp <- data.table::fread(paste('5_riboseq_output/2_density_data/',ribo_file[x],sep = ''),
       #                               sep = "\t")[,c(1,2,4)]
-      ribo_tmp <- vroom::vroom(paste('2.density-data/',ribo_file[x],sep = ''),
+      ribo_tmp <- vroom::vroom(paste('5_riboseq_output/2_density_data/',ribo_file[x],sep = ''),
                                delim = "\t",show_col_types = FALSE,
                                col_names = c('id',"transpos",'none','density'),
                                col_select = c('id','transpos','density')) |>
@@ -508,9 +508,9 @@ load_track_data <- function(mapping_type = c("genome","transcriptome"),
 
       if(!is.null(rna_file)){
         # rna coverage
-        # rna_tmp <- data.table::fread(paste('2.density-data/',rna_file[x],sep = ''),
+        # rna_tmp <- data.table::fread(paste('5_riboseq_output/2_density_data/',rna_file[x],sep = ''),
         #                              sep = "\t")[,c(1,2,4)]
-        rna_tmp <- vroom::vroom(paste('2.density-data/',rna_file[x],sep = ''),
+        rna_tmp <- vroom::vroom(paste('5_riboseq_output/2_density_data/',rna_file[x],sep = ''),
                                 delim = "\t",show_col_types = FALSE,
                                 col_names = c('id',"transpos",'none','density'),
                                 col_select = c('id','transpos','density')) |>
@@ -560,8 +560,8 @@ load_track_data <- function(mapping_type = c("genome","transcriptome"),
 #'
 #' @examples
 #' # Assume that we have a gene annotation data frame called 'gene_annot' and two ribosome density
-#' # files called 'file1.bam' and 'file2.bam' in '2.density-data/' directory. The following code
-#' # will calculate the metagene data and save the results in '3.metagene-data/' directory with
+#' # files called 'file1.bam' and 'file2.bam' in '5_riboseq_output/2_density_data/' directory. The following code
+#' # will calculate the metagene data and save the results in '5_riboseq_output/3_metagene_data/' directory with
 #' # names 'metagene1.tsv' and 'metagene2.tsv':
 #' #
 #' # pre_metagene_data(gene_anno = gene_annot,
@@ -581,8 +581,8 @@ pre_metagene_data <- function(mapping_type = c("genome","transcriptome"),
   mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
   mode <- match.arg(mode,c("st","sp"))
 
-  if(!dir.exists("3.metagene-data")){
-    dir.create("3.metagene-data")
+  if(!dir.exists("5_riboseq_output/3_metagene_data")){
+    dir.create("5_riboseq_output/3_metagene_data")
   }
 
   JuliaCall::julia_setup(installJulia = TRUE)
@@ -601,8 +601,8 @@ pre_metagene_data <- function(mapping_type = c("genome","transcriptome"),
 
     # excute function
     lapply(seq_along(density_file), function(x){
-      inputFile_tmp = paste("2.density-data/",density_file[x],sep = "")
-      outFile_tmp = paste("3.metagene-data/",out_file[x],sep = "")
+      inputFile_tmp = paste("5_riboseq_output/2_density_data/",density_file[x],sep = "")
+      outFile_tmp = paste("5_riboseq_output/3_metagene_data/",out_file[x],sep = "")
       MetageneAnalysis(geneInfo = gene_anno,
                        inputFile = inputFile_tmp,
                        outputFile = outFile_tmp,
@@ -618,8 +618,8 @@ pre_metagene_data <- function(mapping_type = c("genome","transcriptome"),
 
     # excute function
     lapply(seq_along(density_file), function(x){
-      inputFile_tmp = paste("2.density-data/",density_file[x],sep = "")
-      outFile_tmp = paste("3.metagene-data/",out_file[x],sep = "")
+      inputFile_tmp = paste("5_riboseq_output/2_density_data/",density_file[x],sep = "")
+      outFile_tmp = paste("5_riboseq_output/3_metagene_data/",out_file[x],sep = "")
       MetageneAnalysis(inputFile = inputFile_tmp,
                        outputFile = outFile_tmp,
                        mode = mode,
@@ -656,7 +656,7 @@ pre_metagene_data <- function(mapping_type = c("genome","transcriptome"),
 load_metagene_data <- function(sample_name = NULL,
                                group_name = NULL){
   # load data
-  file <- list.files('3.metagene-data/','.txt')
+  file <- list.files('5_riboseq_output/3_metagene_data/','.txt')
   message("MetaGene input files: ")
   message(paste0(file,sep = "\n"))
 
@@ -673,7 +673,7 @@ load_metagene_data <- function(sample_name = NULL,
   }
 
   plyr::ldply(1:length(file),function(x){
-    tmp <- data.table::fread(paste('3.metagene-data/',file[x],sep = ''))
+    tmp <- data.table::fread(paste('5_riboseq_output/3_metagene_data/',file[x],sep = ''))
     colnames(tmp) <- c('pos','density')
     # add sample
     tmp$sample <- sample_name[x]
@@ -706,8 +706,8 @@ pre_count_tpm_data <- function(sam_file = NULL,
                                type = c("ribo","rna")){
   type <- match.arg(type,c("ribo","rna"))
 
-  if(!dir.exists("4.expression-data")){
-    dir.create("4.expression-data")
+  if(!dir.exists("5_riboseq_output/4_expression_data")){
+    dir.create("5_riboseq_output/4_expression_data")
   }
 
   JuliaCall::julia_setup(installJulia = TRUE)
@@ -724,7 +724,7 @@ pre_count_tpm_data <- function(sam_file = NULL,
 
   # excute function
   lapply(seq_along(sam_file), function(x){
-    outFile_tmp = paste("4.expression-data/",out_file[x],sep = "")
+    outFile_tmp = paste("5_riboseq_output/4_expression_data/",out_file[x],sep = "")
     CalculateCountTPM(inputFile = sam_file[x],
                       outputFile = outFile_tmp,
                       inputType = type)
@@ -753,7 +753,7 @@ pre_count_tpm_data <- function(sam_file = NULL,
 #' @export
 load_expression_data <- function(sample_name = NULL){
   # load data
-  file <- list.files('4.expression-data/','.txt')
+  file <- list.files('5_riboseq_output/4_expression_data/','.txt')
   message("Expression input files: ")
   message(paste0(file,sep = "\n"))
 
@@ -766,7 +766,7 @@ load_expression_data <- function(sample_name = NULL){
   # ============================================================================
   # extract count data
   lapply(1:length(file),function(x){
-    tmp <- data.table::fread(paste('4.expression-data/',file[x],sep = ''))[,-3]
+    tmp <- data.table::fread(paste('5_riboseq_output/4_expression_data/',file[x],sep = ''))[,-3]
     # add sample
     sample <- sample_name[x]
     colnames(tmp) <- c("gene_name",sample)
@@ -781,7 +781,7 @@ load_expression_data <- function(sample_name = NULL){
   # ============================================================================
   # extract tpm data
   lapply(1:length(file),function(x){
-    tmp <- data.table::fread(paste('4.expression-data/',file[x],sep = ''))[,-2]
+    tmp <- data.table::fread(paste('5_riboseq_output/4_expression_data/',file[x],sep = ''))[,-2]
     # add sample
     sample <- sample_name[x]
     colnames(tmp) <- c("gene_name",sample)

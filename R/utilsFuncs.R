@@ -561,7 +561,8 @@ batch_sam2bam <- function(sam_file = NULL, bam_file = NULL, threads = 1) {
 
     system2("/usr/local/bin/samtools", args = c("view", paste0("-@ ", threads), "-Sb", sam_file[x], "-o", bam_file_path))
     system2("/usr/local/bin/samtools", args = c("sort", paste0("-@ ", threads), bam_file_path, "-o", sorted_bam_file_path))
-		
+    system2("/usr/local/bin/samtools", args = c("index", paste0("-@ ", threads), sorted_bam_file_path))
+    
     cli::cat_bullet(paste(sam_file[x], "has been processed!", sep = " "),
                     bullet = "play", bullet_col = "orange",
                     background_col = "grey98", col = "#00235B")
