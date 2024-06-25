@@ -384,7 +384,7 @@ pre_gene_trans_density <- function(gene_anno = NULL,
 load_qc_data <- function(sample_name = NULL,
                          group_name = NULL){
   # load data
-  file <- list.files('1.QC-data/','.txt')
+  file <- list.files('5_riboseq_qc/','.txt')
   message("QC input files: ")
   message(paste0(file,sep = "\n"))
 
@@ -401,7 +401,7 @@ load_qc_data <- function(sample_name = NULL,
   }
 
   plyr::ldply(1:length(file),function(x){
-    tmp <- data.table::fread(paste('1.QC-data/',file[x],sep = ''))
+    tmp <- data.table::fread(paste('5_riboseq_qc/',file[x],sep = ''))
     colnames(tmp) <- c('length','framest','relst','framesp','relsp','feature','counts')
     # add sample
     tmp$sample <- sample_name[x]
