@@ -141,7 +141,7 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
 
     lapply(1:length(sam_file), function(x){
       # excute function
-      outFile_tmp = paste("1_QC_data",out_file[x],sep = "")
+      outFile_tmp = paste("1_QC_data/",out_file[x],sep = "")
       prepareQCdata(samFile = sam_file[x],
                     outFile = outFile_tmp,
                     seqType = seq_type)
