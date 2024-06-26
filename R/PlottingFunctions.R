@@ -18,6 +18,22 @@ jj_theme <- function(){
         strip.text.x = element_text(color = "black",size = rel(1),face = "bold.italic"),
         panel.grid = element_blank())
 }
+themePara <- 
+  theme(axis.title = element_text(size = 10, family = "ArialMT", colour = "black"),
+        axis.text = element_text(size = 8, family = "ArialMT", colour = "black"),
+        axis.text.x = element_text(size = 8, family = "ArialMT", colour = "black"),
+        axis.text.y = element_text(size = 8, family = "ArialMT", colour = "black"),
+        strip.text = element_text(color = "black",size = 8),
+        strip.text.x = element_text(color = "black",size = 8),
+        legend.text = element_text(size = 8, family = "ArialMT", colour = "black"),
+        legend.key.size = unit(12, "pt"),
+        legend.title = element_text(size = 10, colour = "black"),
+        plot.title = element_text(size = 10, hjust = 0.5, family = "ArialMT", colour = "black"),
+        line = element_line(linewidth = 1/2.134),
+        panel.background = element_blank(), plot.background = element_blank(),
+        legend.background = element_blank(), legend.box.background = element_blank(),
+        panel.grid = element_blank())
+
 
 #' qc_plot function
 #'
@@ -52,7 +68,7 @@ qc_plot <- function(qc_data = NULL,
   options(warn=-1)
   # Suppress summarise info
   options(dplyr.summarise.inform = FALSE)
-
+  
   # ===================================================================
   # plot layers
   # ===================================================================
@@ -60,18 +76,18 @@ qc_plot <- function(qc_data = NULL,
   pmain <-
     ggplot() +
     theme_bw() +
-    jj_theme() +
+    themePara +
     xlab('Read length') + ylab('Reads numbers(k)') +
     do.call(facet_wrap,
             modifyList(list(~sample,scales = 'free',ncol = 2),
                        facet_wrap_list))
-
+  
   # process layers
   type <- match.arg(type,c("length","length_frame","feature","frame"))
   if(type == "length"){
     len <- qc_data %>% group_by(group,sample,length) %>%
       dplyr::summarise(num = sum(counts))
-
+    
     layer_tmp <- pmain +
       do.call(geom_col,
               modifyList(list(data = len,
@@ -81,7 +97,7 @@ qc_plot <- function(qc_data = NULL,
   }else if(type == "length_frame"){
     frame <- qc_data %>% group_by(group,sample,length,framest) %>%
       dplyr::summarise(num = sum(counts))
-
+    
     layer_tmp <- pmain +
       do.call(geom_col,
               modifyList(list(data = frame,
@@ -93,7 +109,7 @@ qc_plot <- function(qc_data = NULL,
   }else if(type == "feature"){
     featuredf <- qc_data %>% group_by(group,sample,feature) %>%
       dplyr::summarise(num = sum(counts))
-
+    
     layer_tmp <- pmain +
       do.call(geom_col,
               modifyList(list(data = featuredf,
@@ -107,7 +123,7 @@ qc_plot <- function(qc_data = NULL,
   }else if(type == "frame"){
     frame <- qc_data %>% group_by(group,sample,framest) %>%
       dplyr::summarise(num = sum(counts))
-
+    
     layer_tmp <- pmain +
       do.call(geom_col,
               modifyList(list(data = frame,
@@ -118,7 +134,7 @@ qc_plot <- function(qc_data = NULL,
       scale_fill_brewer(palette = 'Greens',name = '',direction = -1,
                         labels = c('frame 0','frame 1','frame 2'))
   }
-
+  
   return(layer_tmp)
 }
 
@@ -161,12 +177,12 @@ rel_to_start_stop <- function(qc_data = NULL,
   options(warn=-1)
   # Suppress summarise info
   options(dplyr.summarise.inform = FALSE)
-
+  
   # ============================================================================
   # process arguments
   # ============================================================================
   type <- match.arg(type,c("relst","relsp"))
-
+  
   if(type == "relst"){
     v = "framest"
     vars_f <- rlang::ensyms(type,v)
@@ -176,7 +192,7 @@ rel_to_start_stop <- function(qc_data = NULL,
     vars_f <- rlang::ensyms(type,v)
     d_range <- c(-100,50)
   }
-
+  
   if(!is.null(dist_range)){
     d_range <- dist_range
   }
@@ -185,11 +201,11 @@ rel_to_start_stop <- function(qc_data = NULL,
   # ============================================================================
   rel <- qc_data %>% group_by(sample,!!!vars_f) %>%
     dplyr::summarise(allCounts = sum(counts))
-
+  
   # total reads
   totalReads <- qc_data %>% group_by(sample) %>%
     dplyr::summarise(total = sum(counts))
-
+  
   # normalize to total reads
   s = unique(rel$sample)
   plyr::ldply(s,function(x){
@@ -198,18 +214,18 @@ rel_to_start_stop <- function(qc_data = NULL,
     tmp$normaledReads <- (tmp$allCounts/total_ct)*10^6
     return(tmp)
   }) -> rel
-
+  
   # filter region
   df <- rel %>% filter(!!vars_f[[1]] >= d_range[1] & !!vars_f[[1]] <= d_range[2])
   df <- df %>% mutate(!!vars_f[[2]]  := factor(!!vars_f[[2]] ,levels = c(0,1,2)))
-
+  
   # ============================================================================
   # plot
   # ============================================================================
   pmain <-
     ggplot() +
     theme_bw() +
-    jj_theme() +
+    themePara +
     xlab('Read length') + ylab('Reads numbers(k)') +
     do.call(facet_wrap,
             modifyList(list(~sample,scales = 'free',ncol = 2),
@@ -223,7 +239,7 @@ rel_to_start_stop <- function(qc_data = NULL,
       geom_col_list)) +
     scale_fill_brewer(palette = 'OrRd',name = '',direction = -1,
                       labels = c('frame 0','frame 1','frame 2'))
-
+  
   # layers
   if(type == "relst"){
     pfin <-
@@ -236,7 +252,7 @@ rel_to_start_stop <- function(qc_data = NULL,
       xlab('Relative to stop codon') +
       ylab('Normalizee Reads counts(k)')
   }
-
+  
   return(pfin)
 }
 
@@ -342,11 +358,11 @@ track_plot <- function(signal_data = NULL,
                                                density*rna_signal_scale,
                                                density))
     }
-
+    
     # order
     signal_data$type <- factor(signal_data$type,levels = c('rna','ribo'))
   }
-
+  
   # add group info for samples
   # sample_group_info = list(group1 = c("sample1","sample2"))
   if(!is.null(sample_group_info)){
@@ -358,13 +374,13 @@ track_plot <- function(signal_data = NULL,
       return(tmp)
     }) -> signal_data
   }
-
+  
   # ============================================================================
   # sample or gene orders
   # ============================================================================
   # gene_order = NULL
   # sample_order = NULL
-
+  
   if(is.null(gene_order)){
     signal_data$gene_name <- factor(signal_data$gene_name,
                                     levels = unique(signal_data$gene_name))
@@ -372,7 +388,7 @@ track_plot <- function(signal_data = NULL,
     signal_data$gene_name <- factor(signal_data$gene_name,
                                     levels = gene_order)
   }
-
+  
   if(is.null(sample_order)){
     signal_data$sample <- factor(signal_data$sample,
                                  levels = unique(signal_data$sample))
@@ -380,19 +396,19 @@ track_plot <- function(signal_data = NULL,
     signal_data$sample <- factor(signal_data$sample,
                                  levels = sample_order)
   }
-
+  
   # ==============================================================================
   # gene strctures
   # ==============================================================================
   plot_type <- match.arg(plot_type,c("translatome","interactome"))
-
+  
   if(plot_type == "interactome"){
     gene <- unique(signal_data$gene_name)
-
+    
     # x = 1
     structure_df <- plyr::ldply(seq_along(gene), function(x){
       tmp <- signal_data[which(signal_data$gene_name %in% gene[x]),]
-
+      
       df <- data.frame(gene_name = gene[x],
                        start = 1,
                        end = length(unique(tmp$codon_pos)),
@@ -401,7 +417,7 @@ track_plot <- function(signal_data = NULL,
                        sample = "trans",
                        region = "CDS",
                        group = NA)
-
+      
       return(df)
     })
   }else if(plot_type == "translatome"){
@@ -411,7 +427,7 @@ track_plot <- function(signal_data = NULL,
                             'cds_region','exon_region','utr5','cds','utr3')
     geneInfo <- geneInfo %>%
       dplyr::filter(gene_name %in% unique(signal_data$gene_name))
-
+    
     # x = 1
     structure_df <- plyr::ldply(1:nrow(geneInfo), function(x){
       tmp <- geneInfo[x,]
@@ -423,26 +439,26 @@ track_plot <- function(signal_data = NULL,
                        sample = "trans",
                        region = c("5UTR","CDS","3UTR"),
                        group = NA)
-
+      
       return(df)
     })
   }
-
+  
   # reassign orders
   structure_df$sample <- factor(structure_df$sample ,levels = c(levels(signal_data$sample),"trans"))
   structure_df$gene_name <- factor(structure_df$gene_name ,levels = levels(signal_data$gene_name))
-
+  
   # ==============================================================================
   # panel range settings
   # ==============================================================================
   n_sample = length(unique(unique(signal_data$sample)))
   n_gene = length(unique(unique(signal_data$gene_name)))
-
+  
   # fixed_col_range = F
   if(fixed_col_range == TRUE){
     track_range <- signal_data %>%
       dplyr::group_by(gene_name)
-
+    
     # check plot_type
     if(plot_type == "interactome"){
       track_range <- track_range %>%
@@ -453,23 +469,23 @@ track_plot <- function(signal_data = NULL,
         dplyr::summarise(min_v = round(min(density),digits = 2),
                          max_v = round(max(density),digits = 2))
     }
-
-
+    
+    
     # reassign minimum value
     if(show_ribo_only == TRUE | reverse_rna == FALSE | plot_type == "interactome"){
       track_range$min_v <- 0
     }
-
+    
     track_range <- track_range %>%
       dplyr::mutate(rg_label = paste("[",min_v,"-",max_v,"]",sep = "")) %>%
       replicate(n_sample,.,simplify = F) %>%
       do.call("rbind",.)
-
+    
     track_range$sample <- rep(unique(signal_data$sample),each = n_gene)
   }else{
     track_range <- signal_data %>%
       dplyr::group_by(gene_name,sample)
-
+    
     # check plot_type
     if(plot_type == "interactome"){
       track_range <- track_range %>%
@@ -480,16 +496,16 @@ track_plot <- function(signal_data = NULL,
         dplyr::summarise(min_v = round(min(density),digits = 2),
                          max_v = round(max(density),digits = 2))
     }
-
+    
     # reassign minimum value
     if(show_ribo_only == TRUE | reverse_rna == FALSE | plot_type == "interactome"){
       track_range$min_v <- 0
     }
-
+    
     track_range <- track_range %>%
       dplyr::mutate(rg_label = paste("[",min_v,"-",max_v,"]",sep = ""))
   }
-
+  
   # add group info
   if(!is.null(sample_group_info)){
     # x = 1
@@ -500,13 +516,13 @@ track_plot <- function(signal_data = NULL,
       return(tmp)
     }) -> track_range
   }
-
+  
   track_range$sample <- factor(track_range$sample ,levels = levels(signal_data$sample))
   track_range$gene_name <- factor(track_range$gene_name ,levels = levels(signal_data$gene_name))
-
+  
   # orders
   track_range <- track_range[order(track_range$sample,track_range$gene_name),]
-
+  
   # y axis range layer
   range_layer <- lapply(1:(nrow(track_range) + length(unique(track_range$gene_name))), function(x){
     position <- ifelse(show_y_ticks == TRUE,"right","left")
@@ -517,49 +533,49 @@ track_plot <- function(signal_data = NULL,
       scale_y_continuous(limits = c(-3,1),breaks = NULL,position = position)
     }
   })
-
+  
   # ==============================================================================
   # paras settings
   # ==============================================================================
-
+  
   # color
   if(is.null(signal_col)){
     signal_col <- c("ribo" = "#D21312","rna" = "#009FBD")
   }else{
     signal_col <- signal_col
   }
-
+  
   # interactome line color
   if(is.null(line_col)){
     line_col_layer <- list(scale_color_brewer(palette = "Paired",name = ""),
                            scale_fill_brewer(palette = "Paired",name = ""))
-
+    
   }else{
     line_col_layer <- list(scale_color_manual(values = line_col,name = ""),
                            scale_fill_manual(values = line_col,name = ""))
   }
-
+  
   # structure_col = NULL
   if(is.null(structure_col)){
     structure_col <- c("5UTR" = "grey70","CDS" = "grey50","3UTR" = "grey70")
   }else{
     structure_col <- structure_col
   }
-
+  
   # panel size
   if(is.null(panel_size)){
     panel_size <- c(4,1)
   }else{
     panel_size <- panel_size
   }
-
+  
   # facet label
   label_df <- signal_data %>% dplyr::ungroup() %>%
     dplyr::select(gene_name,trans_id) %>% unique()
-
+  
   new_label <- paste(label_df$gene_name,label_df$trans_id,sep = "\n")
   names(new_label) <- label_df$gene_name
-
+  
   # ============================================================================
   # plot
   # ============================================================================
@@ -568,7 +584,7 @@ track_plot <- function(signal_data = NULL,
   }else{
     facet_var = group + sample~gene_name
   }
-
+  
   # draw track
   if(plot_type == "translatome"){
     p <- ggplot() +
@@ -612,7 +628,7 @@ track_plot <- function(signal_data = NULL,
       ylab('Mean enrichment [AU] (co-IP/total)') +
       xlab('Ribosome position \n (codons/amino acids)')
   }
-
+  
   # whether add gene structure
   if(add_gene_struc == TRUE){
     ptheme <- p +
@@ -627,7 +643,7 @@ track_plot <- function(signal_data = NULL,
   }else{
     ptheme <- p
   }
-
+  
   # add theme details
   ptheme <- ptheme +
     theme_bw() +
@@ -637,10 +653,10 @@ track_plot <- function(signal_data = NULL,
                         switch = "y",
                         labeller = labeller(gene_name = new_label)) +
     ggh4x::facetted_pos_scales(y = range_layer) +
-    jj_theme() +
+    themePara +
     ggh4x::force_panelsizes(rows = rep(c(rep(panel_size[1],n_sample),panel_size[2]),
                                        length(unique(signal_data$gene_name))))
-
+  
   # whether show y ticks
   if(show_y_ticks == TRUE){
     ptheme <- ptheme +
@@ -666,7 +682,7 @@ track_plot <- function(signal_data = NULL,
             legend.text = element_text(face = "bold"),
             panel.background = element_rect(fill = alpha(background_col,0.5)))
   }
-
+  
   # whether show x ticks
   if(show_x_ticks == TRUE){
     ptheme <- ptheme +
@@ -677,16 +693,16 @@ track_plot <- function(signal_data = NULL,
       theme(axis.text.x = element_blank(),
             axis.ticks.x = element_blank())
   }
-
+  
   # ============================================================================
   # remove panel borders
   # ============================================================================
   if(remove_all_panel_border == TRUE | remove_trans_panel_border == TRUE){
     g <- ggplotGrob(ptheme)
-
+    
     # remove_all_panel_border = T
     col_num <- length(unique(signal_data$gene_name))
-
+    
     # defnie panels
     # remove_trans_panel_border = T
     if(remove_all_panel_border == TRUE){
@@ -698,7 +714,7 @@ track_plot <- function(signal_data = NULL,
     }else{
       message("Should not be both TRUE!")
     }
-
+    
     # grobs editting
     for (i in panel_num + 1) {
       grobs_border <- grid::grid.ls(g$grobs[[i]],print = FALSE)
@@ -710,7 +726,7 @@ track_plot <- function(signal_data = NULL,
   }else{
     return(ptheme)
   }
-
+  
 }
 
 
@@ -744,37 +760,37 @@ track_plot <- function(signal_data = NULL,
 plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
                          plot_type = c("barplot","table"),geom_col_params = list(), Title = ""){
   plot_type <- match.arg(plot_type,c("barplot","table"))
-
+  
   # define extract func
   extrac_fun <- function(x){
     as.numeric(sapply(strsplit(x,split = "\\("), "[",1))
   }
-
+  
   # assign file name
   if(is.null(file_name)){
     sample_name <- sapply(strsplit(mapinfo_file,split = "mapinfo.txt"), "[",1)
   }else{
     sample_name <- file_name
   }
-
+  
   # loop for read and extract
   # x = 1
   plyr::ldply(seq_along(mapinfo_file),function(x){
     tmp <- read.delim(mapinfo_file[x],check.names = FALSE)
-
+    
     lapply(1:4, function(x){
       extrac_fun(tmp[x,])
     }) |> unlist() -> map_reads
-
+    
     res <- data.frame(sample = sample_name[x],
                       total_mapped = map_reads[1],
                       un_mapped = map_reads[2],
                       uniq_mapped = map_reads[3],
                       multi_mapped = map_reads[4])
-
+    
     return(res)
   }) -> all_map_df
-
+  
   # wide to long
   df_long <- reshape2::melt(all_map_df[,-2],id.vars = "sample",
                             variable.name = "map_type",value.name = "reads")
@@ -783,28 +799,17 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   # plot
   p1 <-
     ggplot(df_long) +
-  do.call(geom_col,modifyList(
-    list(mapping = aes(x = reads,y = sample,fill = map_type),
-         position = position_fill()),geom_col_params)) +
-  labs(x = "reads percent", y = NULL, title = Title) +
-  scale_fill_brewer(palette = "Paired") +
-  scale_x_continuous(labels = scales::label_percent()) +
-  scale_y_discrete(limits = rev(levels(df_long$sample))) +
-  theme_bw() + 
-  theme(axis.title = element_text(size = 10, family = "ArialMT", colour = "black"),
-        axis.text = element_text(size = 8, family = "ArialMT", colour = "black"),
-        axis.text.x = element_text(size = 8, family = "ArialMT", colour = "black"),
-        axis.text.y = element_text(size = 8, family = "ArialMT", colour = "black"),
-        legend.text = element_text(size = 8, family = "ArialMT", colour = "black"),
-        legend.key.size = unit(12, "pt"),
-        legend.title = element_text(size = 10, colour = "black"),
-        plot.title = element_text(size = 10, hjust = 0.5, family = "ArialMT", colour = "black"),
-        line = element_line(linewidth = 1/2.134),
-        panel.background = element_blank(), plot.background = element_blank(),
-        legend.background = element_blank(), legend.box.background = element_blank(),
-        panel.grid = element_blank())
+    do.call(geom_col,modifyList(
+      list(mapping = aes(x = reads,y = sample,fill = map_type),
+           position = position_fill()),geom_col_params)) +
+    labs(x = "reads percent", y = NULL, title = Title) +
+    scale_fill_brewer(palette = "Paired") +
+    scale_x_continuous(labels = scales::label_percent()) +
+    scale_y_discrete(limits = rev(levels(df_long$sample))) +
+    theme_bw() + themePara
+    
   barplot <- cowplot::plot_grid(egg::set_panel_size(p1, width = unit(4.5, "cm"), height = unit(1.2*length(unique(df_long$sample)), "cm")))
-
+  
   # return
   if(plot_type == "barplot"){
     barplot
