@@ -79,7 +79,7 @@ qc_plot <- function(qc_data = NULL,
     themePara +
     xlab('Read length') + ylab('Reads numbers(k)') +
     do.call(facet_wrap,
-            modifyList(list(~sample,scales = 'free',ncol = 2),
+            modifyList(list(~sample,scales = 'free',ncol = 1),
                        facet_wrap_list))
   
   # process layers
