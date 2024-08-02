@@ -813,7 +813,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   if(plot_type == "barplot"){
     barplot
   }else{
-    tab <- gridExtra::tableGrob(all_map_df, rows = NULL)
+    tab <- gridExtra::tableGrob(all_map_df, rows = NULL, theme = gridExtra::ttheme_default(base_size = 8, padding = unit(c(3, 3), "mm")))
     grid::grid.newpage()
     grid::grid.draw(tab)
   }
