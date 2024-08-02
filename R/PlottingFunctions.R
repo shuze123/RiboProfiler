@@ -797,7 +797,7 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
   df_long$map_type <- factor(df_long$map_type, levels = c("multi_mapped", "uniq_mapped", "un_mapped"))
   df_long$sample <- factor(df_long$sample, levels = unique(df_long$sample))
   # plot
-  p1 <-
+  barplot <-
     ggplot(df_long) +
     do.call(geom_col,modifyList(
       list(mapping = aes(x = reads,y = sample,fill = map_type),
@@ -808,7 +808,6 @@ plot_mapinfo <- function(mapinfo_file = NULL,file_name = NULL,
     scale_y_discrete(limits = rev(levels(df_long$sample))) +
     theme_bw() + themePara
     
-  barplot <- cowplot::plot_grid(egg::set_panel_size(p1, width = unit(4.5, "cm"), height = unit(1.2*length(unique(df_long$sample)), "cm")))
   
   # return
   if(plot_type == "barplot"){
