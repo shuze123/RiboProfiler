@@ -108,45 +108,44 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
                         longest_trans_file = NULL,
                         sam_file = NULL,
                         out_file = NULL,
-                        seq_type = c("pairedEnd","singleEnd")) {
-  mapping_type <- match.arg(mapping_type, c("genome","transcriptome"))
-  seq_type <- match.arg(seq_type, c("pairedEnd","singleEnd"))
+                        seq_type = c("pairedEnd","singleEnd")){
+  mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
+  seq_type <- match.arg(seq_type,c("pairedEnd","singleEnd"))
 
-  if (!dir.exists("1_QC_data")) {
+  if(!dir.exists("1_QC_data")){
     dir.create("1_QC_data")
   }
 
-  # Set up reticulate and import necessary Python modules
-  reticulate::use_python("/usr/bin/python3") # Adjust the path to your Python executable
-  reticulate::py_install("pysam")
-  reticulate::py_install("collections")
+  JuliaCall::julia_setup(installJulia = TRUE)
+  JuliaCall::julia_install_package_if_needed("XAM")
+  JuliaCall::julia_library("XAM")
 
-  # Define the path to the Python script
-  script_path <- system.file("extdata", "prepareQCdata.py", package = "RiboProfiler")
+  script_path <- paste0('include("',
+                        system.file("extdata", "prepareQCdata.jl",
+                                    package = "RiboProfiler"),
+                        '")',collapse = "")
 
-  # Source the Python script
-  reticulate::source_python(script_path)
+  # choose function
+  JuliaCall::julia_eval(script_path)
+  if(mapping_type == "genome"){
+    prepareQCdata <- JuliaCall::julia_eval("prepareQCdata")
 
-  # Choose function based on mapping type
-  if (mapping_type == "genome") {
-    prepareQCdata <- reticulate::import_from_path("prepareQCdata", path = script_path)
-
-    # Execute function
-    outFile_tmp <- file.path("1_QC_data", out_file)
+    # excute function
+    outFile_tmp = paste("1_QC_data/",out_file,sep = "")
     prepareQCdata(longestTransInfo = longest_trans_file,
-                  samFile = paste(sam_file, collapse = ","),
-                  outFile = paste(outFile_tmp, collapse = ","),
+                  samFile = paste0(sam_file,collapse = ","),
+                  outFile = paste0(outFile_tmp,collapse = ","),
                   seqType = seq_type)
-  } else if (mapping_type == "transcriptome") {
-    prepareQCdata_ontrans <- reticulate::import_from_path("prepareQCdata_ontrans", path = script_path)
+  }else if(mapping_type == "transcriptome"){
+    prepareQCdata <- JuliaCall::julia_eval("prepareQCdata_ontrans")
 
-    lapply(1:length(sam_file), function(x) {
-      # Execute function
-      outFile_tmp <- file.path("1_QC_data", out_file[x])
-      prepareQCdata_ontrans(samFile = sam_file[x],
-                            outFile = outFile_tmp,
-                            seqType = seq_type)
-      message(paste(sam_file[x], " has been processed!", sep = ""))
+    lapply(1:length(sam_file), function(x){
+      # excute function
+      outFile_tmp = paste("1_QC_data/",out_file[x],sep = "")
+      prepareQCdata(samFile = sam_file[x],
+                    outFile = outFile_tmp,
+                    seqType = seq_type)
+      message(paste(sam_file[x]," has been processed!",sep = ""))
     }) -> tmp
   }
 
@@ -184,39 +183,38 @@ pre_qc_data <- function(mapping_type = c("genome","transcriptome"),
 pre_ribo_density_data <- function(mapping_type = c("genome","transcriptome"),
                                   sam_file = NULL,
                                   out_file = NULL,
-                                  min = 23, max = 35) {
-  mapping_type <- match.arg(mapping_type, c("genome","transcriptome"))
+                                  min = 23,max = 35){
+  mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
 
-  if (!dir.exists("2_density_data")) {
+  if(!dir.exists("2_density_data")){
     dir.create("2_density_data")
   }
 
-  # Set up reticulate and import necessary Python modules
-  reticulate::use_python("/usr/bin/python3") # Adjust the path to your Python executable
-  reticulate::py_install("pysam")
-  reticulate::py_install("collections")
+  JuliaCall::julia_setup(installJulia = TRUE)
 
-  # Define the path to the Python script
-  script_path <- system.file("extdata", "CalculateRibosomeDensity.py", package = "RiboProfiler")
+  JuliaCall::julia_library("XAM")
 
-  # Source the Python script
-  reticulate::source_python(script_path)
+  script_path <- paste0('include("',
+                        system.file("extdata", "CalculateRibosomeDensity.jl",
+                                    package = "RiboProfiler"),
+                        '")',collapse = "")
 
-  # Choose function based on mapping type
-  if (mapping_type == "genome") {
-    calculateRibosomeDensity <- reticulate::import_from_path("CalculateRibosomeDensity", path = script_path)
-  } else if (mapping_type == "transcriptome") {
-    calculateRibosomeDensity <- reticulate::import_from_path("CalculateRibosomeDensity_ontrans", path = script_path)
+  # choose function
+  JuliaCall::julia_eval(script_path)
+  if(mapping_type == "genome"){
+    calculateRibosomeDensity <- JuliaCall::julia_eval("CalculateRibosomeDensity")
+  }else if(mapping_type == "transcriptome"){
+    calculateRibosomeDensity <- JuliaCall::julia_eval("CalculateRibosomeDensity_ontrans")
   }
 
-  # Execute function
-  lapply(seq_along(sam_file), function(x) {
-    outFile_tmp <- file.path("2_density_data", out_file[x])
+  # excute function
+  lapply(seq_along(sam_file), function(x){
+    outFile_tmp = paste("2_density_data/",out_file[x],sep = "")
     calculateRibosomeDensity(inputFile = sam_file[x],
                              outputFile = outFile_tmp,
-                             min_length = min,
-                             max_length = max)
-    message(paste(sam_file[x], " has been processed!", sep = ""))
+                             min = min,
+                             max = max)
+    message(paste(sam_file[x]," has been processed!",sep = ""))
   }) -> tmp
 
   return(NULL)
@@ -247,15 +245,15 @@ pre_ribo_density_data <- function(mapping_type = c("genome","transcriptome"),
 #' @export
 pre_rna_coverage_data <- function(sam_file = NULL,
                                   bam_file = NULL,
-                                  out_file = NULL) {
-  if (!dir.exists("2_density_data")) {
+                                  out_file = NULL){
+  if(!dir.exists("2_density_data")){
     dir.create("2_density_data")
   }
 
   # check input file type
-  if (!is.null(bam_file)) {
-    lapply(seq_along(bam_file), function(x) {
-      outFile_tmp <- file.path("2_density_data", out_file[x])
+  if(!is.null(bam_file)){
+    lapply(seq_along(bam_file), function(x){
+      outFile_tmp = paste("2_density_data/",out_file[x],sep = "")
 
       # bam total mapped reads
       total_mapped_reads <- sum(Rsamtools::idxstatsBam(bam_file[x])$mapped)
@@ -272,35 +270,33 @@ pre_rna_coverage_data <- function(sam_file = NULL,
                                  scanBamParam = scanbamparam )
 
       # rpm normalization
-      depth$rpm <- (depth$count / total_mapped_reads) * 10^6
+      depth$rpm <- (depth$count / total_mapped_reads)*10^6
 
       # output
-      data.table::fwrite(depth, file = outFile_tmp, sep = "\t", col.names = FALSE, nThread = parallel::detectCores())
+      data.table::fwrite(depth,file = outFile_tmp,sep = "\t",col.names = FALSE,nThread = parallel::detectCores())
 
-      message(paste(bam_file[x], " has been processed!", sep = ""))
+      message(paste(bam_file[x]," has been processed!",sep = ""))
     }) -> tmp
     return(NULL)
-  } else if (!is.null(sam_file)) {
-    # Set up reticulate and import necessary Python modules
-    reticulate::use_python("/usr/bin/python3") # Adjust the path to your Python executable
-    reticulate::py_install("pysam")
-    reticulate::py_install("collections")
+  }else if(!is.null(sam_file)){
+    JuliaCall::julia_setup(installJulia = TRUE)
 
-    # Define the path to the Python script
-    script_path <- system.file("extdata", "CalculateRNACoverage.py", package = "RiboProfiler")
+    JuliaCall::julia_library("XAM")
 
-    # Source the Python script
-    reticulate::source_python(script_path)
+    script_path <- paste0('include("',
+                          system.file("extdata", "CalculateRNACoverage.jl",
+                                      package = "RiboProfiler"),
+                          '")',collapse = "")
 
-    calculateRNACoverage <- reticulate::import_from_path("CalculateRNACoverage", path = script_path)
+    calculateRNACoverage <- JuliaCall::julia_eval(script_path)
 
-    # Execute function
-    lapply(seq_along(sam_file), function(x) {
-      outFile_tmp <- file.path("2_density_data", out_file[x])
+    # excute function
+    lapply(seq_along(sam_file), function(x){
+      outFile_tmp = paste("2_density_data/",out_file[x],sep = "")
       calculateRNACoverage(inputFile = sam_file[x],
                            outputFile = outFile_tmp,
                            type = "coverage")
-      message(paste(sam_file[x], " has been processed!", sep = ""))
+      message(paste(sam_file[x]," has been processed!",sep = ""))
     }) -> tmp
     return(NULL)
   }
@@ -342,32 +338,30 @@ pre_rna_coverage_data <- function(sam_file = NULL,
 #' @export
 pre_gene_trans_density <- function(gene_anno = NULL,
                                    density_file = NULL,
-                                   out_file = NULL) {
-  if (!dir.exists("2_density_data")) {
+                                   out_file = NULL){
+  if(!dir.exists("2_density_data")){
     dir.create("2_density_data")
   }
 
-  # Set up reticulate and import necessary Python modules
-  reticulate::use_python("/usr/bin/python3") # Adjust the path to your Python executable
-  reticulate::py_install("pysam")
-  reticulate::py_install("collections")
+  JuliaCall::julia_setup(installJulia = TRUE)
 
-  # Define the path to the Python script
-  script_path <- system.file("extdata", "GetGeneSinglePosDensity.py", package = "RiboProfiler")
+  JuliaCall::julia_library("XAM")
 
-  # Source the Python script
-  reticulate::source_python(script_path)
+  script_path <- paste0('include("',
+                        system.file("extdata", "GetGeneSinglePosDensity.jl",
+                                    package = "RiboProfiler"),
+                        '")',collapse = "")
 
-  getGeneSinglePosDensity <- reticulate::import_from_path("GetGeneSinglePosDensity", path = script_path)
+  getGeneSinglePosDensity <- JuliaCall::julia_eval(script_path)
 
-  # Execute function
-  lapply(seq_along(density_file), function(x) {
-    inputFile_tmp <- file.path("2_density_data", density_file[x])
-    outFile_tmp <- file.path("2_density_data", out_file[x])
+  # excute function
+  lapply(seq_along(density_file), function(x){
+    inputFile_tmp = paste("2_density_data/",density_file[x],sep = "")
+    outFile_tmp = paste("2_density_data/",out_file[x],sep = "")
     getGeneSinglePosDensity(geneInfo = gene_anno,
                             inputFile = inputFile_tmp,
                             outputFile = outFile_tmp)
-    message(paste(inputFile_tmp, " has been processed!"))
+    message(paste(inputFile_tmp," has been processed!"))
   }) -> tmp
   return(NULL)
 }
@@ -583,33 +577,32 @@ pre_metagene_data <- function(mapping_type = c("genome","transcriptome"),
                               type = "codon",
                               cdslength = 600,
                               expression = 30,
-                              exclude = 90) {
-  mapping_type <- match.arg(mapping_type, c("genome","transcriptome"))
-  mode <- match.arg(mode, c("st","sp"))
+                              exclude = 90){
+  mapping_type <- match.arg(mapping_type,c("genome","transcriptome"))
+  mode <- match.arg(mode,c("st","sp"))
 
-  if (!dir.exists("3_metagene_data")) {
+  if(!dir.exists("3_metagene_data")){
     dir.create("3_metagene_data")
   }
 
-  # Set up reticulate and import necessary Python modules
-  reticulate::use_python("/usr/bin/python3") # Adjust the path to your Python executable
-  reticulate::py_install("collections")
-  reticulate::py_install("pandas")
+  JuliaCall::julia_setup(installJulia = TRUE)
 
-  # Define the path to the Python script
-  script_path <- system.file("extdata", "MetageneAnalysis.py", package = "RiboProfiler")
+  JuliaCall::julia_library("DataStructures")
 
-  # Source the Python script
-  reticulate::source_python(script_path)
+  script_path <- paste0('include("',
+                        system.file("extdata", "MetageneAnalysis.jl",
+                                    package = "RiboProfiler"),
+                        '")',collapse = "")
 
-  # Choose function based on mapping type
-  if (mapping_type == "genome") {
-    MetageneAnalysis <- reticulate::import_from_path("MetageneAnalysis", path = script_path)
+  # choose function
+  JuliaCall::julia_eval(script_path)
+  if(mapping_type == "genome"){
+    MetageneAnalysis <- JuliaCall::julia_eval("MetageneAnalysis")
 
-    # Execute function
-    lapply(seq_along(density_file), function(x) {
-      inputFile_tmp <- file.path("2_density_data", density_file[x])
-      outFile_tmp <- file.path("3_metagene_data", out_file[x])
+    # excute function
+    lapply(seq_along(density_file), function(x){
+      inputFile_tmp = paste("2_density_data/",density_file[x],sep = "")
+      outFile_tmp = paste("3_metagene_data/",out_file[x],sep = "")
       MetageneAnalysis(geneInfo = gene_anno,
                        inputFile = inputFile_tmp,
                        outputFile = outFile_tmp,
@@ -618,25 +611,26 @@ pre_metagene_data <- function(mapping_type = c("genome","transcriptome"),
                        cdslength = as.integer(cdslength),
                        expression = as.integer(expression),
                        exclude = as.integer(exclude))
-      message(paste(inputFile_tmp, " has been processed!"))
+      message(paste(inputFile_tmp," has been processed!"))
     }) -> tmp
-  } else if (mapping_type == "transcriptome") {
-    MetageneAnalysis_ontrans <- reticulate::import_from_path("MetageneAnalysis_ontrans", path = script_path)
+  }else if(mapping_type == "transcriptome"){
+    MetageneAnalysis <- JuliaCall::julia_eval("MetageneAnalysis_ontrans")
 
-    # Execute function
-    lapply(seq_along(density_file), function(x) {
-      inputFile_tmp <- file.path("2_density_data", density_file[x])
-      outFile_tmp <- file.path("3_metagene_data", out_file[x])
-      MetageneAnalysis_ontrans(inputFile = inputFile_tmp,
-                               outputFile = outFile_tmp,
-                               mode = mode,
-                               type = type,
-                               cdslength = as.integer(cdslength),
-                               expression = as.integer(expression),
-                               exclude = as.integer(exclude))
-      message(paste(inputFile_tmp, " has been processed!"))
+    # excute function
+    lapply(seq_along(density_file), function(x){
+      inputFile_tmp = paste("2_density_data/",density_file[x],sep = "")
+      outFile_tmp = paste("3_metagene_data/",out_file[x],sep = "")
+      MetageneAnalysis(inputFile = inputFile_tmp,
+                       outputFile = outFile_tmp,
+                       mode = mode,
+                       type = type,
+                       cdslength = as.integer(cdslength),
+                       expression = as.integer(expression),
+                       exclude = as.integer(exclude))
+      message(paste(inputFile_tmp," has been processed!"))
     }) -> tmp
   }
+
 
   return(NULL)
 }
@@ -709,33 +703,32 @@ load_metagene_data <- function(sample_name = NULL,
 #' @export
 pre_count_tpm_data <- function(sam_file = NULL,
                                out_file = NULL,
-                               type = c("ribo", "rna")) {
-  type <- match.arg(type, c("ribo", "rna"))
+                               type = c("ribo","rna")){
+  type <- match.arg(type,c("ribo","rna"))
 
-  if (!dir.exists("4_expression_data")) {
+  if(!dir.exists("4_expression_data")){
     dir.create("4_expression_data")
   }
 
-  # Set up reticulate and import necessary Python modules
-  reticulate::use_python("/usr/bin/python3") # Adjust the path to your Python executable
-  reticulate::py_install("pysam")
-  reticulate::py_install("collections")
+  JuliaCall::julia_setup(installJulia = TRUE)
 
-  # Define the path to the Python script
-  script_path <- system.file("extdata", "CalculateCountTPM.py", package = "RiboProfiler")
+  JuliaCall::julia_library("XAM")
 
-  # Source the Python script
-  reticulate::source_python(script_path)
+  script_path <- paste0('include("',
+                        system.file("extdata", "CalculateCountTPM.jl",
+                                    package = "RiboProfiler"),
+                        '")',collapse = "")
 
-  CalculateCountTPM <- reticulate::import_from_path("CalculateCountTPM", path = script_path)
+  # choose function
+  CalculateCountTPM <- JuliaCall::julia_eval(script_path)
 
-  # Execute function
-  lapply(seq_along(sam_file), function(x) {
-    outFile_tmp <- file.path("4_expression_data", out_file[x])
+  # excute function
+  lapply(seq_along(sam_file), function(x){
+    outFile_tmp = paste("4_expression_data/",out_file[x],sep = "")
     CalculateCountTPM(inputFile = sam_file[x],
                       outputFile = outFile_tmp,
                       inputType = type)
-    message(paste(sam_file[x], " has been processed!", sep = ""))
+    message(paste(sam_file[x]," has been processed!",sep = ""))
   }) -> tmp
 
   return(NULL)
