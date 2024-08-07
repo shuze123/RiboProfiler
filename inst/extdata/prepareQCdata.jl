@@ -1,6 +1,6 @@
 # load package
 using XAM
-
+using Base.Threads
 ##############################################################################################################
 # for mapping to genome qc analysis
 ##############################################################################################################
@@ -66,7 +66,7 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
         # while !eof(reader)
         #     empty!(record)
         #     read!(reader, record)
-        for record in reader
+        Threads.@threads for record in reader
             # do something
             if SAM.ismapped(record) # (remove flag4)
                 # tags
@@ -190,7 +190,7 @@ function prepareQCdata_ontrans(;samFile,outFile,seqType)
     # while !eof(reader)
     #     empty!(record)
     #     read!(reader, record)
-    for record in reader
+    Threads.@threads for record in reader
         # do something
         if SAM.ismapped(record)
             # tags
