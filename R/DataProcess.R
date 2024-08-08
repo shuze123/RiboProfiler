@@ -273,7 +273,7 @@ pre_rna_coverage_data <- function(sam_file = NULL,
       depth$rpm <- (depth$count / total_mapped_reads)*10^6
 
       # output
-      data.table::fwrite(depth,file = outFile_tmp,sep = "\t",col.names = FALSE,nThread = parallel::detectCores())
+      data.table::fwrite(depth,file = outFile_tmp,sep = "\t",col.names = FALSE,nThread = 16)
 
       message(paste(bam_file[x]," has been processed!",sep = ""))
     }) -> tmp
