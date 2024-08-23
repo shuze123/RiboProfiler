@@ -567,7 +567,7 @@ batch_sam2bam <- function(sam_file = NULL,
                     # bullet = "play", bullet_col = "orange",
                     # background_col = "grey98", col = "#00235B")
   # }) -> tmp
-}
+# }
 
 
 
