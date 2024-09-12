@@ -77,12 +77,12 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
 
                 # flag16(+) use 5'end as alignpos and flag0(-) use 3'end as alignpos
                 if seq_type == "singleEnd"
-                    if flag == 16
+                    if flag in [16, 83, 147]
                         # flag 0 reads from - stand
                         end3Pos = align_pos + read_length - 1
                         # read key
                         readKey = join([refname,end3Pos],"|")
-                    elseif flag == 0
+                    elseif flag in [0, 99, 163]
                         # flag 16 reads from + stand
                         # read key
                         readKey = join([refname,align_pos],"|")
@@ -90,11 +90,11 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
                         println("There are other flags!")
                     end
                 elseif seq_type == "pairedEnd"
-                    if flag == 16
+                    if flag in [16, 83, 147]
                         # flag 16 reads from + stand
                         # read key
                         readKey = join([refname,align_pos],"|")
-                    elseif flag == 0
+                    elseif flag in [0, 99, 163]
                         # flag 0 reads from - stand
                         end3Pos = align_pos + read_length - 1
                         # read key
@@ -119,9 +119,9 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
                     frame_sp = abs(rel2sp)%3
                     
                     # read center position
-                    if flag == 16
+                    if flag in [16, 83, 147]
                         align_pos_center = transPos + (read_length ÷ 2)
-                    elseif flag == 0
+                    elseif flag in [0, 99, 163]
                         align_pos_center = transPos - (read_length ÷ 2)
                     else
                         println("There are other flags!")
@@ -201,17 +201,17 @@ function prepareQCdata_ontrans(;samFile,outFile,seqType)
 
             # flag0(-strand gene) and flag16(+strand gene) for read1
             if seqType == "singleEnd"
-                if flag == 0
+                if flag in [0, 99, 163]
                     exact_pos = align_pos
-                elseif flag == 16
+                elseif flag in [16, 83, 147]
                     exact_pos = align_pos + read_length - 1
                 else
                     println("There are other flags!")
                 end
             elseif seqType == "pairedEnd"
-                if flag == 0
+                if flag in [0, 99, 163]
                     exact_pos = align_pos + read_length - 1
-                elseif flag == 16
+                elseif flag in [16, 83, 147]
                     exact_pos = align_pos
                 else
                     println("There are other flags!")
@@ -232,9 +232,9 @@ function prepareQCdata_ontrans(;samFile,outFile,seqType)
             frame_sp = abs(rel2sp)%3
 
             # read center position
-            if flag == 16
+            if flag in [16, 83, 147]
                 align_pos_center = exact_pos + (read_length ÷ 2)
-            elseif flag == 0
+            elseif flag in [0, 99, 163]
                 align_pos_center = exact_pos - (read_length ÷ 2)
             else
                 println("There are other flags!")
