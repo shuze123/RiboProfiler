@@ -87,7 +87,8 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
                         # read key
                         readKey = join([refname,align_pos],"|")
                     else
-                        println("There are other flags!")
+                        # println("There are other flags!")
+                        continue
                     end
                 elseif seq_type == "pairedEnd"
                     if flag in [16, 83, 147]
@@ -100,7 +101,8 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
                         # read key
                         readKey = join([refname,end3Pos],"|")
                     else
-                        println("There are other flags!")
+                        # println("There are other flags!")
+                        continue
                     end
                 end
 
@@ -124,7 +126,8 @@ function prepareQCdata(;longestTransInfo,samFile,outFile,seqType)
                     elseif flag in [0, 99, 163]
                         align_pos_center = transPos - (read_length ÷ 2)
                     else
-                        println("There are other flags!")
+                        # println("There are other flags!")
+                        continue
                     end
 
                     # feaure type(5UTR,CDS,3UTR)
@@ -206,7 +209,8 @@ function prepareQCdata_ontrans(;samFile,outFile,seqType)
                 elseif flag in [16, 83, 147]
                     exact_pos = align_pos + read_length - 1
                 else
-                    println("There are other flags!")
+                    # println("There are other flags!")
+                    continue
                 end
             elseif seqType == "pairedEnd"
                 if flag in [0, 99, 163]
@@ -214,7 +218,8 @@ function prepareQCdata_ontrans(;samFile,outFile,seqType)
                 elseif flag in [16, 83, 147]
                     exact_pos = align_pos
                 else
-                    println("There are other flags!")
+                    # println("There are other flags!")
+                    continue
                 end
             end
             
@@ -237,7 +242,8 @@ function prepareQCdata_ontrans(;samFile,outFile,seqType)
             elseif flag in [0, 99, 163]
                 align_pos_center = exact_pos - (read_length ÷ 2)
             else
-                println("There are other flags!")
+                # println("There are other flags!")
+                continue
             end
 
             # assign 5'UTR/CDS/3'UTR features
